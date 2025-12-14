@@ -68,7 +68,8 @@ async def main():
     # await mission13()
     # await mission11()
     await mission1()
-    # await mission12()
+    #await mission12()
+    await mission2()
 
 async def mission6():
     await motor.run_for_degrees(attachment_right, 200, 660)
@@ -124,7 +125,7 @@ async def mission9_2():
     await motor_pair.move_for_degrees(motor_pair.PAIR_1, 500, 0, velocity=460)
 
 async def mission10_2():
-    turn_down = -220
+    turn_down = -240
     turn_velocity = 600
     turn_up= 220
     #await move_distance(5, 1, 560)
@@ -154,13 +155,12 @@ async def mission11():
     await turn(67, "left")
 
 async def mission1():
-
-    await move_distance(33, 1, 450) # moving forward to mission 1
-    await motor.run_for_degrees(attachment_left, 150, -200) # moving the attachment down
+    await move_distance(32, 1, 450) # moving forward to mission 1
+    await motor.run_for_degrees(attachment_left, 122, -200) # moving the attachment down
     await runloop.sleep_ms(800)
-    await move_distance(10, 1, 300) # move forward to push down the next wall
-    await motor_pair.move_for_degrees(motor_pair.PAIR_1, 200, 0, velocity=-1010)
-    await motor.run_for_degrees(attachment_left, 100, 500) # moving the attachment up to take the brush up
+    await move_distance(12, 1, 300) # move forward to push down the next wall
+    await motor_pair.move_for_degrees(motor_pair.PAIR_1, 150, 0, velocity=-1010)
+    await motor.run_for_degrees(attachment_left, 350, 660) # moving the attachment up to take the brush up
     # await move_distance(100, 1, 660)
     # await move_distance(100, -1, 660)
 
@@ -170,5 +170,20 @@ async def mission1():
     # fourth: lift attachement up
 async def mission12():
     await move_distance(30, 1, 660)
+
+async def mission2():
+    await turn(4, "right") #turn right
+    await move_distance(10, 1, 450)#move forward
+    await motor.run_for_degrees(attachment_left, -135, 200)
+    await move_distance(20, 1, 450)#move forward
+    await motor.run_for_degrees(attachment_left, 500, 660)#attachment up
+    #await turn(7, "left") #turn left
+    #await move_distance(5, 1, 450)#move forward
+    #await motor.run_for_degrees(attachment_left, -150, 250)#attachment down
+    #await move_distance(7, 1, 450)#move forward
+    #await motor.run_for_degrees(attachment_left, 150, 250)#attachment up
+    #await move_distance(3, 1, 450)#move forward
+    #await motor.run_for_degrees(attachment_right, -270, 150)#attachment up
+    #await turn(15, "right") #turn right
 
 runloop.run(main())
