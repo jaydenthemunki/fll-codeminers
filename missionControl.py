@@ -77,8 +77,8 @@ async def mission6():
     await turn(28, "left")
 
 async def mission5():
-    await move_distance(4, 1, 660)
-    await turn(13, "left")
+    await move_distance(5, 1, 660)
+    await turn(16, "left")
     await motor.run_for_degrees(attachment_right, -150, 300)
 
 async def mission10():
