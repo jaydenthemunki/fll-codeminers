@@ -3,34 +3,44 @@ import motor_pair, runloop, motor
 
 
 wheel_circumference=17.6
-motor_1=port.F
-motor_2=port.B
+
+MoveMotor1=port.F
+MoveMotor2=port.B
 attachment_left=port.C
 attachment_right=port.A
-motor_pair.pair(motor_pair.PAIR_1, motor_1, motor_2)
+motor_pair.pair(motor_pair.PAIR_1, MoveMotor1, MoveMotor2)
 
 def distance_to_degrees(distance):
     return (distance/360)*wheel_circumference
 
-async def move_distance(distance, direction, speed):
+def move_distance(distance, direction, vel):
+    # print("In moveStraight")
     motion_sensor.reset_yaw(0)
-    motor.reset_relative_position(motor_2, 0)
+    # Setting starting point and yaw to 0
+    motor.reset_relative_position(MoveMotor2, 0)
 
-    startPos=motor.relative_position(motor_2)
-    currentPos=startPos
+    startPos = motor.relative_position(MoveMotor2)
+    # print("Starting position is ", startPos)
 
-    while (abs(currentPos)<distance):
-        currentPos= distance_to_degrees(motor.relative_position(motor_2))
-        yawAngle=motion_sensor.tilt_angles()[0]
-        correction=0
+    current_rel_pos = startPos
 
-        if (yawAngle!=0):
-            error=yawAngle*-0.1
-            correction=int(error*-2)
+    #moving motor until new relative position is distance or greater
+    while (abs(current_rel_pos) < abs(distance)):
+        #collect the yaw angle and current relative position
+        current_rel_pos = distance_to_degrees(motor.relative_position(MoveMotor2))
+        yawAngle = motion_sensor.tilt_angles()[0]
+        # print("currpos is ", current_rel_pos)
+        correction = 0
 
-        motor_pair.move(motor_pair.PAIR_1, correction, velocity=speed*direction, acceleration=1000)
+        if (yawAngle != 0):
+            # print("Yaw is ", yawAngle)
+            error = yawAngle * -0.1
+            correction = int(error * -2)
+
+
+        motor_pair.move(motor_pair.PAIR_1, correction*direction, velocity=vel * direction, acceleration=1000)
     motor_pair.stop(motor_pair.PAIR_1)
-    await runloop.sleep_ms(500)
+    print("Now returning with relpos: ", current_rel_pos)
     return
 
 async def turn(degrees, direction):
@@ -53,52 +63,55 @@ async def turn(degrees, direction):
 async def main():
     #await mission0()
     # 6 5 10 9
-    #await mission6()
-    #await mission5()
-    #await mission10()
-    #await mission9()
+    # await mission6()
+    # await mission5()
+    # await mission10()
+    # await mission9()
     # 8
-    #await mission8()
-    # 9_2 10_2 13
-    #await mission9_2()
-    #await mission10_2()
-    #await mission13()
-    # 1 2 wip
+    # await mission8()
+    # await mission9_2()
+    # 9_2 10_2
+    # await mission10_2()
+    # 13
+    # await mission13()
+    # 11 wip
+    # await mission11()
+    # 1 wip
     #await mission1()
-    await mission2()
     # 12 wip
     #await mission12()
-    # 11 wip
-    #await mission11()
+    # 2 almost
+    # await mission2()
+    await test()
+
+async def test():
+       await move_distance(40, -1, 660)
+
 
 async def mission6():
-    await motor.run_for_degrees(attachment_right, 135, 300)
-    await move_distance(60, 1, 660)
-    await turn(30, "left")
+    runloop.run(motor.run_for_degrees(attachment_right, 135, 300), move_distance(61, 1, 660))
+    await turn(28, "left")
 
 async def mission5():
-    await move_distance(4, 1, 660)
-    await turn(12, "left")
-    await motor_pair.move_for_degrees(motor_pair.PAIR_1, 90, 0, velocity=-200) #back
-    await motor.run_for_degrees(attachment_right, -130, 100)
+    await move_distance(5, 1, 660)
+    await turn(16, "left")
+    await motor.run_for_degrees(attachment_right, -150, 300)
 
 async def mission10():
-    await turn(22, "left")
-    await move_distance(53, 1, 660)
-    await turn(160, "left")
-    await move_distance(3, 1, 660)
-    await motor.run_for_degrees(attachment_right, 200, 400)
-    await motor.run_for_degrees(attachment_right, -175, 400)
-
+    runloop.run(motor.run_for_degrees(attachment_right, -100, 600), move_distance(1, -1,660))
+    await turn(16, "left")
+    await move_distance(40, 1,660)
+    await turn(125, "left")
+    await move_distance(4, 1, 300)
+    await motor.run_for_degrees(attachment_right, 200, 660)
+    await motor.run_for_degrees(attachment_right, -200, 660)
 
 async def mission9():
-    await motor_pair.move_for_degrees(motor_pair.PAIR_1, 100, 0, velocity=-200)
-    await move_distance(20, 1, 300)
-    await motor_pair.move_for_degrees(motor_pair.PAIR_1, 325, 0, velocity=-200)
+    await move_distance(5, -1, 560)
     await turn(25, "left")
-    await move_distance(30, 1, 660)
-    await turn(32, "right")
-    await move_distance(60, 1, 1000)
+    runloop.run(move_distance(33, 1, 460), runloop.sleep_ms(250), motor_pair.move_for_degrees(motor_pair.PAIR_1, 200, 0, velocity=-460))
+    await turn(25, "left")
+    await move_distance(64, 1 ,1000)
 
 async def mission8():
     # await motor.run_for_degrees(attachment_right, -200, 700)
@@ -172,23 +185,29 @@ async def mission12():
     await motor_pair.move_for_degrees(motor_pair.PAIR_1, -1000, 0, velocity = 660)
 
 async def mission2():
-    await motor.run_for_degrees(attachment_left, -120, 100), #Down
-    await move_distance(56, 1, 700),
-    await motor.run_for_degrees(attachment_right, -74, 35, deceleration = 250) #Down
-    await turn(18, "left")
-    await move_distance(7, 1, 700)
-    await motor.run_for_degrees(attachment_right, 120, 300) #Up
-    await motor.run_for_degrees(attachment_left, 15, 300) #Up
-    # await turn(4, "left")
-    # await motor_pair.move_for_degrees(motor_pair.PAIR_1, 90, 0, velocity=-200)
-    # await motor.run_for_degrees(attachment_left, 70, 200) #Up
-    # await turn(14, "right")
-    # await motor.run_for_degrees(attachment_left, -50, 30) #Down
-    # await move_distance(5, 1, 100)
-    # await motor_pair.move_for_degrees(motor_pair.PAIR_1, -20, 0, velocity = 300)
-    # await motor.run_for_degrees(attachment_left, 68, 500)
-    # await turn(24, "right")
-    # await motor_pair.move_for_degrees(motor_pair.PAIR_1, -1250, 0, velocity = 660)
-    # await motor.run_for_degrees(attachment_left, 70, 200) #Up
+    runloop.run(
+        motor.run_for_degrees(attachment_left, -120, 100), #Down
+        move_distance(56, 1, 700),
+        motor.run_for_degrees(attachment_right, -74, 35, deceleration = 250) #Down
+        )
 
+    await turn(24, "left")
+    await move_distance(7, 1, 700)
+    await motor.run_for_degrees(attachment_right, 120, 100) #Up
+    runloop.run(
+        turn(4, "left"),
+        motor.run_for_degrees(attachment_left, 70, 200) #Up
+        )
+    runloop.run(
+        turn(17, "right"),
+        motor.run_for_degrees(attachment_left, -50, 30) #Down
+        )
+    await move_distance(5, 1, 100)
+    await motor_pair.move_for_degrees(motor_pair.PAIR_1, -20, 0, velocity = 300),
+    await motor.run_for_degrees(attachment_left, 68, 500)
+    await turn(24, "right")
+    runloop.run(
+        motor_pair.move_for_degrees(motor_pair.PAIR_1, -1250, 0, velocity = 660),
+        motor.run_for_degrees(attachment_left, 70, 200) #Up
+    )
 runloop.run(main())
