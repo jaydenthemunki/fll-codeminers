@@ -69,11 +69,10 @@ async def main():
     # await mission9()
         # 8
     #await mission8()
-    # await mission9_2()
-        # 9_2 10_2
-    # await mission10_2()
-        # 13
-    # await mission13()
+        # 9_2 10_2 13
+    await mission9_2()
+    await mission10_2()
+    #await mission13()
         # 11 wip
     # await mission11()
         # 1 and 2 done
